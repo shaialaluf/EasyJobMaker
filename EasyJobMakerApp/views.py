@@ -1,6 +1,7 @@
 from contextvars import Context
 from email.mime import image
 from http.client import HTTPResponse
+from itertools import count
 from multiprocessing import Event, context
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, JsonResponse
@@ -12,6 +13,7 @@ from django.db.models import Q
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
+from django.db.models import Max
 from django.shortcuts import render, get_object_or_404
 from .models import *
 from django.contrib import messages
@@ -23,16 +25,21 @@ from django.template import context,loader
 
 
 def main(request):
+    reviews=[]
     if request.user.is_authenticated:  
+        best_review=ReviewRating.objects.order_by('-rating')
+        for i in range (ReviewRating.objects.count()):
+            reviews.append(ReviewRating.objects.order_by('-rating')[i])
         try: 
             service_provider = Service_Provider.objects.get(user = request.user)
+           
             is_service_provider = True
         except Service_Provider.DoesNotExist:
             is_service_provider = False
       
     else:
         is_service_provider = False    
-    context = {"is_service_provider":is_service_provider}
+    context = {"is_service_provider":is_service_provider,"reviews":reviews}
     return render(request, "EasyJobMakerApp/main.html", context)
 
 

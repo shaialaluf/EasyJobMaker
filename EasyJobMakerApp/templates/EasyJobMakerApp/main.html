@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 {% load static %}
+{% load mathfilters %}
 <html lang="en">
 
 <head>
@@ -7,7 +8,11 @@
     <!-- CSS only. first bootstrap and then our css!-->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
-
+        <link
+        href="https://unpkg.com/boxicons@2.1.2/css/boxicons.min.css"
+        rel="stylesheet"
+      />
+      <link rel="stylesheet" type="text/css" href="{% static '/css/swiper-bundle.min.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static '/css/main.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static '/fonts/ionicons.min.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static '/css/footer-Dark.css' %}">
@@ -55,17 +60,21 @@
                 <li class="nav-item active">
                     <a class="nav-link" href="{% url 'jobBuilder' %}">Add a Job<span class="sr-only"></span></a>
                 </li>
+                {% if user.is_authenticated %}
                 <li class="nav-item active">
                     <a class="nav-link" href="{% url 'myJobs' %}">My Jobs<span class="sr-only"></span></a>
                 </li>
+                {%endif%}
                 {%if is_service_provider%}
                 <li class="nav-item active">
                     <a class="nav-link" href="{% url 'jobsToDo' %}"> Jobs To Do<span class="sr-only"></span></a>
                 </li>
                 {%endif%}
+                {% if user.is_authenticated %}
                 <li class="nav-item active">
                     <a class="nav-link" href="{% url 'jobsApplications' %}"> Jobs Applications<span class="sr-only"></span></a>
                 </li>
+                {%endif%}
             </ul>
         </div>
         {% block search %}
@@ -111,6 +120,133 @@
                 social - that is, the app serves as an intermediary between customers and couriers for the purpose of
                 providing informal / social services.</p><a class="btn btn-primary btn-lg" role="button"
                 href="{% url 'jobs' %}">start now!</a>
+
+
+                <section class="container review-section">
+                    <div class="testimonial mySwiper">
+                        <h1 id="spr">Service provider reviews</h1>
+                        
+                            <!-- <div class="label">{{best_review.service_provider.full_name}}</div> -->
+                       
+                      <div class="testi-content swiper-wrapper">
+
+                        {% for review in reviews %}
+                        
+                        <div class="slide swiper-slide">
+                
+
+
+                            <img class="image service_provider_img" src="{{ review.service_provider.customer.imageURL }}"  alt=""  />
+                            <div>
+                                <div class="service_provider_label" style="display: none">{{review.service_provider.full_name}} </div>
+                                {% if review.service_provider.reviews_counter > 0 %}
+                                {% with rate=review.service_provider.reviews_sum|div:review.service_provider.reviews_counter %}
+                                <div class="rating-star-navbar" style="display:none">
+                                    <span>
+                                        <i class="fa fa-star{% if rate >= 0.5 and rate < 1 %}-half-o{% elif rate < 1 %}-o {% endif %}"
+                                            aria-hidden="true"></i>
+                                        <i class="fa fa-star{% if rate >= 1.5 and rate < 2 %}-half-o{% elif rate < 2 %}-o {% endif %}"
+                                            aria-hidden="true"></i>
+                                        <i class="fa fa-star{% if rate >= 2.5 and rate < 3 %}-half-o{% elif rate < 3 %}-o {% endif %}"
+                                            aria-hidden="true"></i>
+                                        <i class="fa fa-star{% if rate >= 3.5 and rate < 4 %}-half-o{% elif rate < 4 %}-o {% endif %}"
+                                            aria-hidden="true"></i>
+                                        <i class="fa fa-star{% if rate >= 4.5 and rate < 5 %}-half-o{% elif rate < 5 %}-o {% endif %}"
+                                            aria-hidden="true"></i>
+                                    </span>
+                                </div>
+                                {% endwith %}
+                                {%else%}
+                                <div class="rating-star-navbar" style="display:none">
+                                    <span>
+                                        <i class="fa fa-star-o" aria-hidden="true"></i>
+                                        <i class="fa fa-star-o" aria-hidden="true"></i>
+                                        <i class="fa fa-star-o" aria-hidden="true"></i>
+                                        <i class="fa fa-star-o" aria-hidden="true"></i>
+                                        <i class="fa fa-star-o" aria-hidden="true"></i>
+                                    </span>
+                                </div>
+                                {%endif%}
+                            </div>
+                       
+                            <p>
+                              {{review.review}}
+                            </p>
+                
+                            <i class="bx bxs-quote-alt-left quote-icon"></i>
+                
+                            <div class="details">
+                              <span class="name">{{review.customer.full_name}}</span>
+                              <span class="job">customer</span>
+                              <br>
+                       
+                            </div>
+                          </div>
+                       
+                    
+                        {%endfor%}
+                  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 
+
+                        <div class="slide swiper-slide">
+                          <img src="{{ mid_review.service_provider.customer.imageURL }}" class="image" />
+                          <p>
+                            {{mid_review.review}}
+                          </p>
+              
+                          <i class="bx bxs-quote-alt-left quote-icon"></i>
+              
+                          <div class="details">
+                            <span class="name">      {{mid_review.customer.full_name}} </span>
+                            <span class="job">customer</span>
+                            <br>
+                          </div>
+                        </div>
+                        <div class="slide swiper-slide">
+                          <img src="{{ worst_review.service_provider.customer.imageURL }}"  alt="" class="image" />
+                          <p>
+                            {{worst_review.review}}
+                          </p>
+              
+                          <i class="bx bxs-quote-alt-left quote-icon"></i>
+              
+                          <div class="details">
+                            <span class="name">   {{worst_review.customer.full_name}}</span>
+                          
+                            <span class="job">customer</span>
+                            
+                          </div>
+                        </div> -->
+                      </div>
+                      <div class="swiper-button-next nav-btn"></div>
+                      <div class="swiper-button-prev nav-btn"></div>
+                      <div class="swiper-pagination"></div>
+                    </div>
+                  </section>
+
+
         </div>
 
 
@@ -153,6 +289,27 @@
             <p class="copyright">Easy Job Maker © 2022 </p>
         </div>
     </footer>
+
+    <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+    <script>
+
+        var swiper = new Swiper(".mySwiper", {
+          slidesPerView: 1,
+          grabCursor: true,
+          loop: true,
+          pagination: {
+            el: ".swiper-pagination",
+            clickable: true,
+          },
+          navigation: {
+            nextEl: ".swiper-button-next",
+            prevEl: ".swiper-button-prev",
+          },
+        });
+        
+        
+        </script>
+
     {% endblock content %}
     <!-- JavaScript Bundle with Popper -->
     <script src="https://code.jquery.com/jquery-3.2.1.min.js"
@@ -166,8 +323,12 @@
 </body>
 
 <script>
-
-
+$("document").ready(function(){
+  $(".service_provider_img").hover(function(){
+    $(".rating-star-navbar").toggle();
+   $(".service_provider_label").toggle();
+ });
+ });
 
 
 </script>
