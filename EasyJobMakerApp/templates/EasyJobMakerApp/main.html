@@ -75,6 +75,12 @@
                     <a class="nav-link" href="{% url 'jobsApplications' %}"> Jobs Applications<span class="sr-only"></span></a>
                 </li>
                 {%endif%}
+                {% if user.is_authenticated and is_service_provider %}
+                <li class="nav-item active">
+                    <a class="nav-link" href="{% url 'applicationsStatus' %}"> My Applications<span class="sr-only"></span></a>
+                </li>
+                {%endif%}
+            </ul>
             </ul>
         </div>
         {% block search %}
@@ -124,7 +130,7 @@
 
                 <section class="container review-section">
                     <div class="testimonial mySwiper">
-                        <h1 id="spr">Service provider reviews</h1>
+                        <h1 id="spr">Service Providers Reviews</h1>
                         
                             <!-- <div class="label">{{best_review.service_provider.full_name}}</div> -->
                        

@@ -2,3 +2,15 @@
     margin: 0px 50px 5px 80px;
 }
 
+.th-size{
+    width: 20% !important;
+}
+
+.application-location {
+    vertical-align: middle;
+}
+
+
+th.application-location {
+    padding-left: 100px;
+}

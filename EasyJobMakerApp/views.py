@@ -81,22 +81,25 @@ def myJobs(request):
     return render(request, "EasyJobMakerApp/myJobs.html", {'jobs': my_jobs,"is_service_provider":is_service_provider})
 
 def jobsApplications(request):
-    if request.user.is_authenticated:  
-        try: 
-            service_provider = Service_Provider.objects.get(user = request.user)
-            is_service_provider = True
-        except Service_Provider.DoesNotExist:
-            is_service_provider = False
+    customer=Customer.objects.get(user = request.user)
+    my_jobs=Job.objects.filter(customer=customer)
+    my_jobs_applications = Job_Application.objects.filter(job__in = my_jobs, application_status = Job_Application.Application_status.Pending)
 
-        customer=Customer.objects.get(user = request.user)
-        my_jobs=Job.objects.filter(customer=customer)
-        my_jobs_applications = Job_Application.objects.filter(job__in = my_jobs, application_status = Job_Application.Application_status.Pending)
-
-    else:
+    try: 
+        service_provider = Service_Provider.objects.get(user = request.user)
+        is_service_provider = True
+    except Service_Provider.DoesNotExist:
         is_service_provider = False
 
-    return render(request, "EasyJobMakerApp/jobsApplications.html", {"is_service_provider":is_service_provider, "my_jobs":my_jobs, "my_jobs_applications":my_jobs_applications})
+    return render(request, "EasyJobMakerApp/jobsApplications.html", {"my_jobs":my_jobs, "my_jobs_applications":my_jobs_applications,"is_service_provider":is_service_provider})
 
+
+def applicationsStatus(request):
+    service_provider = Service_Provider.objects.get(user = request.user)
+    my_applications = Job_Application.objects.filter(service_provider = service_provider)
+
+    return render(request, "EasyJobMakerApp/applicationsStatus.html", {"my_applications":my_applications,"is_service_provider":True})
+    
 
 def declineApplication(request):
     data = json.loads(request.body)
@@ -293,9 +296,19 @@ def search(request):
 
 
 def filteredJobsByRegion(request):
+    if request.user.is_authenticated:
+        try:
+            service_provider = Service_Provider.objects.get(user = request.user)
+            is_service_provider = True
+        except Service_Provider.DoesNotExist:
+            is_service_provider = False
+
+    else:
+        is_service_provider = False 
+
+
     region = json.loads(request.POST.get('Region'))['region']
-    if region != "All Regions":
-                
+    if region != "All Regions":       
         jobLocation=Job_Location.objects.filter(region=region)
         temp_cities=list(jobLocation.values_list("city"))
         cities =[]
@@ -310,15 +323,12 @@ def filteredJobsByRegion(request):
     
     else:
         jobs=Job.objects.all()
-    if request.user.is_authenticated:
-        try:
-            service_provider = Service_Provider.objects.get(user = request.user)
-            is_service_provider = True
-        except Service_Provider.DoesNotExist:
-            is_service_provider = False
+    
+    if is_service_provider:
+        applied_jobs = Job_Application.objects.filter(service_provider = service_provider)
+        applied_jobs = applied_jobs.values_list('job', flat=True)
+        jobs = jobs.exclude(id__in = applied_jobs)
 
-    else:
-        is_service_provider = False        
     context = {'jobs': jobs, 'is_service_provider': is_service_provider}
     template = loader.get_template('EasyJobMakerApp/jobs.html')
     html = template.render(context)

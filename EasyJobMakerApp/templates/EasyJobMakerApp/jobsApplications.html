@@ -32,7 +32,7 @@
                     <tr>
                         <p>You have no pending jobs currently !</p>
                     </tr>
-
+                    <hr>
                     {%else%}
                     {% for job in my_jobs %}
                     {%if not job.complete and not job.in_progress %}
@@ -44,8 +44,8 @@
 
                         {% for application in my_jobs_applications %}
                         {%if job == application.job %}
-                        <th class="th-size">
-                            <div class="col-lg-6">
+                        <th class="application-location">
+                            <div class="col-lg-3">
                                 <img class="thumbnail" src="{{ application.service_provider.customer.imageURL }}">
                                 <div class="box-element job">
                                     <h6><strong>{{application.service_provider.full_name}}</strong></h6>
