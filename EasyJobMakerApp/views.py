@@ -26,13 +26,12 @@ from django.template import context,loader
 
 def main(request):
     reviews=[]
+    best_review=ReviewRating.objects.order_by('-rating')
+    for i in range (ReviewRating.objects.count()):
+        reviews.append(best_review[i])
     if request.user.is_authenticated:  
-        best_review=ReviewRating.objects.order_by('-rating')
-        for i in range (ReviewRating.objects.count()):
-            reviews.append(ReviewRating.objects.order_by('-rating')[i])
         try: 
             service_provider = Service_Provider.objects.get(user = request.user)
-           
             is_service_provider = True
         except Service_Provider.DoesNotExist:
             is_service_provider = False

@@ -57,9 +57,11 @@
                 <li class="nav-item active">
                     <a class="nav-link" href="{% url 'jobs' %}">Jobs<span class="sr-only"></span></a>
                 </li>
+                {% if user.is_authenticated %}
                 <li class="nav-item active">
                     <a class="nav-link" href="{% url 'jobBuilder' %}">Add a Job<span class="sr-only"></span></a>
                 </li>
+                {%endif%}
                 {% if user.is_authenticated %}
                 <li class="nav-item active">
                     <a class="nav-link" href="{% url 'myJobs' %}">My Jobs<span class="sr-only"></span></a>
@@ -192,73 +194,13 @@
                     
                         {%endfor%}
                   
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<!-- 
-
-                        <div class="slide swiper-slide">
-                          <img src="{{ mid_review.service_provider.customer.imageURL }}" class="image" />
-                          <p>
-                            {{mid_review.review}}
-                          </p>
-              
-                          <i class="bx bxs-quote-alt-left quote-icon"></i>
-              
-                          <div class="details">
-                            <span class="name">      {{mid_review.customer.full_name}} </span>
-                            <span class="job">customer</span>
-                            <br>
-                          </div>
-                        </div>
-                        <div class="slide swiper-slide">
-                          <img src="{{ worst_review.service_provider.customer.imageURL }}"  alt="" class="image" />
-                          <p>
-                            {{worst_review.review}}
-                          </p>
-              
-                          <i class="bx bxs-quote-alt-left quote-icon"></i>
-              
-                          <div class="details">
-                            <span class="name">   {{worst_review.customer.full_name}}</span>
-                          
-                            <span class="job">customer</span>
-                            
-                          </div>
-                        </div> -->
                       </div>
                       <div class="swiper-button-next nav-btn"></div>
                       <div class="swiper-button-prev nav-btn"></div>
                       <div class="swiper-pagination"></div>
                     </div>
                   </section>
-
-
         </div>
-
-
-
-
-
 
     </div>
     <footer class="footer-dark">
@@ -268,17 +210,23 @@
                     <h3>Services</h3>
                     <ul>
                         <li><a href="{% url 'main' %}">Home</a></li>
+                        {% if user.is_authenticated %}
                         <li><a href="{% url 'jobBuilder' %}">Add Job</a></li>
+                        {% endif %}
+                        {%if is_service_provider%}
                         <li><a href="{% url 'jobsToDo' %}">Job To Do</a></li>
+                        {% endif %}
                     </ul>
                 </div>
+                {% if user.is_authenticated %}
                 <div class="col-sm-6 col-md-3 item">
                     <h3>About</h3>
                     <ul>
                         <li><a href="{% url 'myProfile' %}">Careers</a></li>
                     </ul>
                 </div>
-                <div class="col-md-6 item text">
+                {% endif %}
+                <div id="EasyJobMakerDownSection" class="col-md-6 item text">
                     <h3>Easy Job Maker</h3>
                     <p class="text-right">אפליקציה חברתית שמקשרת בין אנשים שרוצים שליחות כלשהי לבין אנשים שרוצים לעשות
                         שליחות ולהרוויח עבורה. האפליקציה מספקת שירות ללקוחות וכן עבודה מזדמנת לשליחים. השירות שהלקוח
@@ -312,8 +260,7 @@
             prevEl: ".swiper-button-prev",
           },
         });
-        
-        
+
         </script>
 
     {% endblock content %}
@@ -335,8 +282,15 @@ $("document").ready(function(){
    $(".service_provider_label").toggle();
  });
  });
-
-
 </script>
+
+<script>
+        $(window).on( "load", function() {
+            if("{{ user }}" === "AnonymousUser"){
+                $('#EasyJobMakerDownSection').removeClass('col-md-6').addClass('col-md-9')
+            }   
+        })
+</script>
+
 
 </html>
