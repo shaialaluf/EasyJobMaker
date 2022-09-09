@@ -32,7 +32,7 @@
                     <tr>
                         <p>You have no pending jobs currently !</p>
                     </tr>
-                    <hr>
+
                     {%else%}
                     {% for job in my_jobs %}
                     {%if not job.complete and not job.in_progress %}
@@ -44,8 +44,8 @@
 
                         {% for application in my_jobs_applications %}
                         {%if job == application.job %}
-                        <th class="application-location">
-                            <div class="col-lg-3">
+                        <th class="th-size">
+                           
                                 <img class="thumbnail" src="{{ application.service_provider.customer.imageURL }}">
                                 <div class="box-element job">
                                     <h6><strong>{{application.service_provider.full_name}}</strong></h6>
@@ -81,7 +81,7 @@
                                     <a class="btn btn-success add-btn" application={{application.id}} onclick="AcceptApplication(event)">Accept</a>
                                     <a class="btn btn-danger" application={{application.id}} onclick="DeclineApplication(event)">Decline</a>
                                 </div>
-                            </div>
+                       
                         </th>
                         {%endif%}
                         {%endfor%}
