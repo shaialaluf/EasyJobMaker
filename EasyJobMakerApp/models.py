@@ -5,7 +5,7 @@ from pickle import TRUE
 from django.db import models
 from django.contrib.auth.models import User
 
-
+# Table of all the users that signed up to the application
 class Customer(models.Model):
     user = models.OneToOneField(User, null=True, blank=True, on_delete=models.CASCADE)
     full_name = models.CharField(max_length=200, null=True)
@@ -23,6 +23,7 @@ class Customer(models.Model):
         return url    
 
 
+# Table of all the active service providers in the app
 class Service_Provider(models.Model):
     user = models.OneToOneField(User, null=True, blank=True, on_delete=models.CASCADE)
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
@@ -35,13 +36,14 @@ class Service_Provider(models.Model):
         return self.full_name
 
  
-
+# Table of all the possible cities for jobs 
 class Job_Location(models.Model):
     city = models.CharField(max_length=30, blank=True, null=True)
     region = models.CharField(max_length=30, null=True)
     def __str__(self):
         return self.city
 
+ # Table of all the jobs that were posted in the app (including vacancies, jobs in progress and completed jobs)
 class Job(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True, blank=True)
     job_title = models.CharField(max_length=100, null=True)
@@ -69,7 +71,7 @@ class Job(models.Model):
             url = '../../static/images/defaulet_job.jpg'
         return url
 
-
+# Table that contains additional details for each job, mainly location details
 class Job_Address(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True)
     job = models.ForeignKey(Job, on_delete=models.SET_NULL, null=True)
@@ -83,7 +85,7 @@ class Job_Address(models.Model):
     def __str__(self):
         return self.address
 
-
+# Table that contains all the applications made by service providers for jobs, including current status (pending, rejected, accepted)
 class Job_Application(models.Model):
     class Application_status(Enum):
         Pending = 'PE'
@@ -101,6 +103,7 @@ class Job_Application(models.Model):
     service_provider = models.ForeignKey(Service_Provider, on_delete=models.CASCADE)
 
 
+# Table of all the reviews and ratings that customers gave service providers in the end of the job.
 class ReviewRating(models.Model):
     service_provider = models.ForeignKey(Service_Provider, on_delete=models.CASCADE)
     job = models.ForeignKey(Job, on_delete=models.CASCADE)

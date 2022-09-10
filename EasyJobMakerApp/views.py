@@ -23,7 +23,7 @@ from django.template import context,loader
 
 
 
-
+# Render the main page of the application, showing also the best reviews that was written by customers to service providers
 def main(request):
     reviews=[]
     best_review=ReviewRating.objects.order_by('-rating')
@@ -41,7 +41,7 @@ def main(request):
     context = {"is_service_provider":is_service_provider,"reviews":reviews}
     return render(request, "EasyJobMakerApp/main.html", context)
 
-
+# Returns all the jobs that available for the logged in user
 def jobs(request):
     jobs = Job.objects.all()
     if request.user.is_authenticated:
@@ -60,11 +60,13 @@ def jobs(request):
     context = {'jobs': jobs, 'is_service_provider': is_service_provider}
     return render(request, "EasyJobMakerApp/jobs.html", context)
 
+# Returns the jobs that the current service provider got a permission to do (jobs in progress and completed jobs)
 def jobsToDo(request):
     service_provider=Service_Provider.objects.get(user = request.user)
     my_jobs=Job.objects.filter(service_provider=service_provider)
     return render(request, "EasyJobMakerApp/jobsToDo.html", {'jobs': my_jobs,"is_service_provider":True, 'isBreak': False})
 
+# Returns the jobs that the current customer posted in the app
 def myJobs(request):
     customer=Customer.objects.get(user = request.user)
     my_jobs=Job.objects.filter(customer=customer)
@@ -79,6 +81,7 @@ def myJobs(request):
     
     return render(request, "EasyJobMakerApp/myJobs.html", {'jobs': my_jobs,"is_service_provider":is_service_provider})
 
+# Returns all the applications of service providers to jobs that was posted by the logged in user (applications that are pending for the customer's response)
 def jobsApplications(request):
     customer=Customer.objects.get(user = request.user)
     my_jobs=Job.objects.filter(customer=customer)
@@ -93,13 +96,14 @@ def jobsApplications(request):
     return render(request, "EasyJobMakerApp/jobsApplications.html", {"my_jobs":my_jobs, "my_jobs_applications":my_jobs_applications,"is_service_provider":is_service_provider})
 
 
+# Returns all the applications that the current service provider made (accepted, rejected and pending aplications)
 def applicationsStatus(request):
     service_provider = Service_Provider.objects.get(user = request.user)
     my_applications = Job_Application.objects.filter(service_provider = service_provider)
 
     return render(request, "EasyJobMakerApp/applicationsStatus.html", {"my_applications":my_applications,"is_service_provider":True})
     
-
+# Updates a job application as rejected in the database (it runs when a user declines a service provider)
 def declineApplication(request):
     data = json.loads(request.body)
     application_id = data['Application_Id']
@@ -108,6 +112,7 @@ def declineApplication(request):
     application.save()
     return render(request, "EasyJobMakerApp/jobsApplications.html")
 
+# Updates a job application as accepted in the database (it runs when a user accepts a service provider)
 def acceptApplication(request):
     data = json.loads(request.body)
     application_id = data['Application_Id']
@@ -120,20 +125,20 @@ def acceptApplication(request):
     job_taken.save()
     return render(request, 'EasyJobMakerApp/jobsApplications.html')
 
-
+# Returns details of a job for a checkout page (when user intends to apply for this job)
 def checkout(request,job_id):
     job = get_object_or_404(Job, id=job_id)
     jobAddress=get_object_or_404(Job_Address,job=job)
     return render(request, "EasyJobMakerApp/checkout.html", {'job': job,'jobAddress':jobAddress})
 
-
+# Returns details of a job for a jobDetails page (when user wants to view this job)
 def jobDetails(request, job_id):
     job = get_object_or_404(Job, id=job_id)
     jobAddress=get_object_or_404(Job_Address,job=job)
     return render(request, 'EasyJobMakerApp/jobDetails.html', {'job': job,'jobAddress':jobAddress})
 
 
-
+# Returns all possible locations for jobs (this function runs when a user selects the 'Add a Job' option in the app)
 def jobBuilder(request):
     jobsLocations = Job_Location.objects.all()
     if request.user.is_authenticated:    
@@ -150,6 +155,7 @@ def jobBuilder(request):
     return render(request, "EasyJobMakerApp/jobBuilder.html", context)
 
 
+# This function process all the data of the new job that a user added to the app and it updates the database accordingly.
 def addJob(request):
     transaction_id = datetime.datetime.now().timestamp()
     userData = json.loads(request.POST.get('userFormData'))['userData']
@@ -177,19 +183,19 @@ def addJob(request):
   
     return render(request, "EasyJobMakerApp/jobBuilder.html", context)
 
+# Returns registration form of the app
 def registerPage(request):
     form = CreateUserForm()
     context = {'form': form}
     return render(request, "EasyJobMakerApp/register.html", context)
 
+# Returns the login page of the app
 def loginPage(request):
     context = {}
     return render(request, "EasyJobMakerApp/login.html", context)
 
+# Performs authentication for the person requesting to login to the app (checks the given username and password)
 def makelogin(request):
-    # if request.user.is_authenticated:
-    #     return redirect('jobs')
-    # else:
         if request.method == 'POST':
             username = request.POST.get('username')
             password = request.POST.get('password')
@@ -206,15 +212,13 @@ def makelogin(request):
         context = {}
         return render(request, 'EasyJobMakerApp/login.html', context)
 
+# Logs out the current user
 def logoutUser(request):
 	logout(request)
 	return redirect('loginPage')
 
-
+# Creates new account for the person that signed up to the app
 def makeRegister(request):
-    # if request.user.is_authenticated:
-    #     return redirect('home')
-    # else:
         if request.method == 'POST':
             form = CreateUserForm(request.POST)
             if form.is_valid():
@@ -233,8 +237,8 @@ def makeRegister(request):
 
         context = {'form': form}
         return render(request, 'EasyJobMakerApp/register.html', context)
-# Create your views here.
 
+# Processes the job application of the user and updates the database
 def takeJob(request):
     new_application = Job_Application()
     data = json.loads(request.body)
@@ -249,17 +253,8 @@ def takeJob(request):
     new_application.save()
     return render(request, 'EasyJobMakerApp/jobs.html')
 
-# old code 
-    # data = json.loads(request.body)
-    # job_id = data['Job_Id']
-    # job = get_object_or_404(Job, id=job_id)
-    # job.in_progress = True
-    # service_provider = Service_Provider.objects.get(user = request.user)
-    # job.service_provider = service_provider
-    # job.save()
-    # return render(request, 'EasyJobMakerApp/jobs.html')
 
-
+# Returns the current user details in order to show his profile page (including his reviews and rating if he's a service provider)
 def myProfile(request):
     current_user = Customer.objects.get(user = request.user)
     try: 
@@ -273,7 +268,7 @@ def myProfile(request):
         my_reviews = None
     return render(request, 'EasyJobMakerApp/myProfile.html', {'customer': current_user, 'is_service_provider': is_service_provider, 'reviews': my_reviews, 'rate': rate})
 
-
+# Filters and returns the jobs that are compatible with the user's search
 def search(request):
     query = request.GET.get('query', '')
     if query:
@@ -293,7 +288,7 @@ def search(request):
 
     return render(request, 'EasyJobMakerApp/jobs.html', context)
 
-
+# Filters and returns the jobs located in the region that the user chose
 def filteredJobsByRegion(request):
     if request.user.is_authenticated:
         try:
@@ -332,11 +327,9 @@ def filteredJobsByRegion(request):
     template = loader.get_template('EasyJobMakerApp/jobs.html')
     html = template.render(context)
     
-    # c= Context({'jobs': jobs, 'is_service_provider': is_service_provider})
     return HttpResponse(html)
-    # return render(request, "EasyJobMakerApp/jobs.html", context)
-
-
+    
+# Updates the user's account when he asks to change his picture or to toggle the option to be a service provider
 def updateProfile(request):
     userChoiceServiceProvider = json.loads(request.POST.get('ServiceProvider'))['isServiceProvider']
     customer = Customer.objects.get(user=request.user)
@@ -362,7 +355,7 @@ def updateProfile(request):
     context = {}
     return render(request, "EasyJobMakerApp/myProfile.html", context)
 
-        
+# Updates a job's status to 'completed' in the database    
 def finishJob(request):
     data = json.loads(request.body)
     job_id = data['Job_Id']
@@ -372,7 +365,7 @@ def finishJob(request):
     job.save()
     return render(request, 'EasyJobMakerApp/jobs.html')
 
-
+# Processes the review & rating that a user sent (save it in the database and updates the service provider's rate accordingly)
 def submit_review(request, job_id):
     url = request.META.get('HTTP_REFERER')
     if request.method == 'POST':

@@ -33,7 +33,7 @@
                     {%if job.service_provider.user == user and not job.complete%}
                     <tr>
                         <th class="th-size">
-                            <div style="flex:5"><img class="row-image" src="{{ job.image.url }}"></div>
+                            <div style="flex:5"><img class="row-image" src="{{ job.imageURL }}"></div>
                         </th>
                         <th style="padding-left:15%" class="checkout-location">
                             <div style="flex:5">
@@ -79,7 +79,7 @@
                     {%if job.service_provider.user == user and job.complete%}
                     <tr>
                         <th class="th-size">
-                            <div style="flex:5"><img class="row-image" src="{{ job.image.url }}"></div>
+                            <div style="flex:5"><img class="row-image" src="{{ job.imageURL }}"></div>
                         </th>
                         <th style="padding-left:15%" class="checkout-location">
                             <div style="flex:5">
